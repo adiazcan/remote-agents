@@ -1,5 +1,6 @@
-using remote_agents.Web;
-using remote_agents.Web.Components;
+using Ganss.Xss;
+using RemoteAgents.Web;
+using RemoteAgents.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,15 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<IHtmlSanitizer, HtmlSanitizer>(x =>
+{
+    // Configure sanitizer rules as needed here.
+    // For now, just use default rules + allow class attributes
+    var sanitizer = new Ganss.Xss.HtmlSanitizer();
+    sanitizer.AllowedAttributes.Add("class");
+    return sanitizer;
+});
 
 builder.Services.AddOutputCache();
 

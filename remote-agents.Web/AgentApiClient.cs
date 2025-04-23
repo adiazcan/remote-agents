@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace remote_agents.Web;
+namespace RemoteAgents.Web;
 
 public class AgentApiClient(HttpClient httpClient)
 {

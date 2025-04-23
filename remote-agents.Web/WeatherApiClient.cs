@@ -1,4 +1,4 @@
-namespace remote_agents.Web;
+namespace RemoteAgents.Web;
 
 public class WeatherApiClient(HttpClient httpClient)
 {

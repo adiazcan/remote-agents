@@ -3,6 +3,7 @@
 
 @inject AgentApiClient AgentApi
 
+
 <PageTitle>Agent chat</PageTitle>
 
 <h1>Agent Chat</h1>
@@ -13,21 +14,14 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Response text</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var message in messages)
-            {
-                <tr>
-                    <td>@message</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ul>
+        @foreach (var message in messages)
+        {
+            <li>
+                <MarkdownView Content="@message" />
+            </li>
+        }
+    </ul>
 }
 
 @code {
