@@ -1,0 +1,46 @@
+﻿@page "/agent"
+@attribute [StreamRendering(true)]
+
+@inject AgentApiClient AgentApi
+
+<PageTitle>Agent chat</PageTitle>
+
+<h1>Agent Chat</h1>
+
+@if (messages is { Count: 0 })
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Response text</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var message in messages)
+            {
+                <tr>
+                    <td>@message</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<string>? messages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        messages.Clear();
+        
+        await foreach(var message in AgentApi.GetResponseAsync())
+        {
+            messages.Add(message);
+            StateHasChanged();
+        }
+    }
+}
