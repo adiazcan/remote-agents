@@ -10,6 +10,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "remote-agents.ApiService", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "remote-agents.Web", "remote-agents.Web\remote-agents.Web.csproj", "{55FF79FF-5043-46CD-90E3-F0AE89CA8C10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "remote-agents.FlightService", "remote-agents.FlightService\remote-agents.FlightService.csproj", "{4079F87C-3BEF-F4C1-62DE-9D8083EC7B88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{55FF79FF-5043-46CD-90E3-F0AE89CA8C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55FF79FF-5043-46CD-90E3-F0AE89CA8C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55FF79FF-5043-46CD-90E3-F0AE89CA8C10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4079F87C-3BEF-F4C1-62DE-9D8083EC7B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4079F87C-3BEF-F4C1-62DE-9D8083EC7B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4079F87C-3BEF-F4C1-62DE-9D8083EC7B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4079F87C-3BEF-F4C1-62DE-9D8083EC7B88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

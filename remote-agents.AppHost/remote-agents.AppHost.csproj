@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\remote-agents.ApiService\remote-agents.ApiService.csproj" />
+    <ProjectReference Include="..\remote-agents.FlightService\remote-agents.FlightService.csproj" />
     <ProjectReference Include="..\remote-agents.Web\remote-agents.Web.csproj" />
   </ItemGroup>
 

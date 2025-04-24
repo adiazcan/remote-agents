@@ -2,21 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>RemoteAgents.FlightService</RootNamespace>
     <NoWarn>SKEXP0001,SKEXP0050,SKEXP0110</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\remote-agents.ServiceDefaults\remote-agents.ServiceDefaults.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Encamina.Enmarcha.AI.OpenAI.Azure" Version="8.2.1-preview-01" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.47.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.47.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.47.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\remote-agents.ServiceDefaults\remote-agents.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

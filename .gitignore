@@ -401,3 +401,4 @@ FodyWeavers.xsd
 /remote-agents.ApiService/appsettings.Development.json
 /remote-agents.AppHost/appsettings.Development.json
 /remote-agents.Web/appsettings.Development.json
+/remote-agents.FlightService/appsettings.Development.json

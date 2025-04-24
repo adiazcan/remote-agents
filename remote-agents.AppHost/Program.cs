@@ -11,7 +11,10 @@ builder.Configuration.AddJsonFile($@"appsettings.{builder.Environment.Environmen
                      .AddJsonFile($@"appsettings.{Environment.UserName}.json", optional: true, reloadOnChange: true)
                      .AddEnvironmentVariables();
 
+var flightService = builder.AddProject<Projects.remote_agents_FlightService>("flightservice");
+
 var apiService = builder.AddProject<Projects.remote_agents_ApiService>("apiservice")
+    .WithReference(flightService)
     .WithHttpsHealthCheck("/health");
 
 builder.AddProject<Projects.remote_agents_Web>("webfrontend")
