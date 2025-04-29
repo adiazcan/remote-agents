@@ -1,10 +1,15 @@
+using Azure;
+using Azure.AI.Projects;
+using Azure.Identity;
 using Encamina.Enmarcha.AI.OpenAI.Azure;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
+using Microsoft.SemanticKernel.Agents.AzureAI;
 using Microsoft.SemanticKernel.Agents.Chat;
 using Microsoft.SemanticKernel.ChatCompletion;
 using RemoteAgents.ApiService;
 using RemoteAgents.ServiceDefaults;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
 {
@@ -25,7 +30,11 @@ builder.Services
 
 builder.AddServiceDefaults();
 
-builder.Services.AddHttpClient<FlightAgentHttpClient>(client => { client.BaseAddress = new("https+http://flightservice"); });
+builder.Services.AddHttpClient<FlightAgentHttpClient>(client => 
+    { 
+        client.BaseAddress = new("https+http://flightservice");
+        client.Timeout = TimeSpan.FromMinutes(1);
+    });
 
 builder.Services.AddProblemDetails();
 
@@ -53,6 +62,16 @@ ChatCompletionAgent GetAgent(Kernel kernel, string name, string instructions)
     return agent;
 }
 
+AzureAIAgent GetBingAgent(Kernel kernel, string name, IConfiguration configuration)
+{
+    var connectionString = configuration.GetValue<string>("BingAgent:ConnectionString");
+
+    var agentClient = new AgentsClient(connectionString, new DefaultAzureCredential());
+    var agent = agentClient.GetAgent(configuration.GetValue<string>("BingAgent:AgentId"));
+
+    return new AzureAIAgent(agent.Value, agentClient); 
+}
+
 ChatCompletionAgent GetTravelAgent(Kernel kernel, string name)
 {
     string Instructions =
@@ -73,7 +92,7 @@ ChatCompletionAgent GetManagerAgent(Kernel kernel, string name)
     string Instructions =
         """
             You are a travel manager and your goal is to validate a given trip plan. 
-            You must make sure that the plan includes all the necessary details: transportation, lodging, meals and sightseeing. 
+            You must make sure that the plan includes all the necessary details: transportation, lodging, meals, sightseeing and a travelers comments. 
             If one of these details is missing, the plan is not good.
             If the plan is good, recap the entire plan into a Markdown table and say "the plan is approved".
             If not, write a paragraph to explain why it's not good and then provide an improved plan.
@@ -99,19 +118,21 @@ app.MapGet("/response", async (Kernel kernel) =>
 })
 .WithName("Response");
 
-app.MapGet("/copilot/response", (Kernel kernel, FlightAgentHttpClient flightAgentHttpClient) =>
+app.MapGet("/copilot/response", (Kernel kernel, FlightAgentHttpClient flightAgentHttpClient, IConfiguration configuration) =>
 {
-    return Results.Ok(GetCopilotResponse(kernel, flightAgentHttpClient));
+    return Results.Ok(GetCopilotResponse(kernel, flightAgentHttpClient, configuration));
 }).Produces<IAsyncEnumerable<string>>();
 
-async IAsyncEnumerable<string> GetCopilotResponse(Kernel kernel, FlightAgentHttpClient flightAgentHttpClient)
+async IAsyncEnumerable<string> GetCopilotResponse(Kernel kernel, FlightAgentHttpClient flightAgentHttpClient, IConfiguration configuration)
 {
     string travelManagerName = "TravelManager";
     string travelAgentName = "TravelAgent";
 
-
     var flightAgent = new RemoteChatCompletionAgent(flightAgentHttpClient);
     var flightExpertName = flightAgent.Name;
+
+    var bingAgent = GetBingAgent(kernel, "BingAgent", configuration);
+    var bingAgentName = bingAgent.Name;
 
     var managerAgent = GetManagerAgent(kernel, travelManagerName);
     var travelAgent = GetTravelAgent(kernel, travelAgentName);
@@ -127,7 +148,7 @@ async IAsyncEnumerable<string> GetCopilotResponse(Kernel kernel, FlightAgentHttp
         );
 
     KernelFunction selectionFunction = KernelFunctionFactory.CreateFromPrompt(
-        $$$"""
+    $$$"""
               Your job is to determine which participant takes the next turn in a conversation according to the action of the most recent participant.
               State only the name of the participant to take the next turn.
 
@@ -135,13 +156,15 @@ async IAsyncEnumerable<string> GetCopilotResponse(Kernel kernel, FlightAgentHttp
               - {{{travelManagerName}}}
               - {{{travelAgentName}}}
               - {{{flightExpertName}}}
+              - {{{bingAgentName}}}
 
               Always follow these steps when selecting the next participant:
               1) After user input, it is {{{travelAgentName}}}'s turn.
               2) After {{{travelAgentName}}} replies, it's {{{flightExpertName}}}'s turn.
-              3) After {{{flightExpertName}}} replies, it's {{{travelManagerName}}}'s turn to review and approve the plan.
-              4) If the plan is approved, the conversation ends.
-              5) If the plan isn't approved, it's {{{travelAgent}}}'s turn again.
+              3) After {{{flightExpertName}}} replies, it's {{{bingAgentName}}}'s turn to search for valuable comments on internet about the travel destination.
+              4) After {{{bingAgentName}}} replies, it's {{{travelManagerName}}}'s turn to review and approve the plan.
+              5) If the plan is approved, the conversation ends.
+              6) If the plan isn't approved, it's {{{travelAgent}}}'s turn again.
 
               History:
               {{$history}}
@@ -150,7 +173,7 @@ async IAsyncEnumerable<string> GetCopilotResponse(Kernel kernel, FlightAgentHttp
 
     ChatHistoryTruncationReducer historyReducer = new(1);
 
-    AgentGroupChat chat = new(managerAgent, travelAgent, flightAgent)
+    AgentGroupChat chat = new(managerAgent, travelAgent, flightAgent, bingAgent)
     {
         ExecutionSettings = new()
         {

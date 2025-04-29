@@ -6,6 +6,7 @@ public class AgentApiClient(HttpClient httpClient)
 {
     public async IAsyncEnumerable<string> GetResponseAsync()
     {
+        //httpClient.Timeout = TimeSpan.FromSeconds(60);
         using var response = await httpClient.GetAsync("/copilot/response");
         response.EnsureSuccessStatusCode();
         using var responseStream = await response.Content.ReadAsStreamAsync();

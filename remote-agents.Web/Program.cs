@@ -32,6 +32,7 @@ builder.Services.AddHttpClient<WeatherApiClient>(client =>
 builder.Services.AddHttpClient<AgentApiClient>(client =>
 {
     client.BaseAddress = new("https+http://apiservice");
+    client.Timeout = TimeSpan.FromMinutes(1);
 });
 
 var app = builder.Build();
